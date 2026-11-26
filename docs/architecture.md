@@ -2,8 +2,8 @@
 
 | First need | Responsibility |
 | --- | --- |
-| Phase 1 · React, TypeScript, Vite | Render the semantic page shell, type its data and build static files. Introduce Vitest for behavior and Playwright for a browser smoke test. GitHub Actions will run the verified local checks when a human authorizes publication. |
-| Phase 2 · Tailwind | Express shared design tokens and responsive layout in the interface. |
+| Phase 1 · React, TypeScript, Vite, Tailwind | Render the semantic page shell and build static files with basic color tokens. ESLint and TypeScript check source. Vitest and React Testing Library verify shell markup, and Playwright exercises the production build in Chromium. GitHub Actions runs the same checks after authorized publication. |
+| Phase 2 · Visual design system | Extend the Tailwind foundation with shared design tokens, component states and responsive patterns. |
 | Phase 3 · Three.js, React Three Fiber, Drei | Three.js draws the scene. React Three Fiber connects it to React. Use Drei helpers where a scene requirement calls for one. |
 | Phases 4–5 · GSAP | Own the cinematic timeline and scroll choreography. |
 | Phase 7 · Zustand | Share durable selections between controls, scene and summary when configuration spans those consumers. |
