@@ -20,3 +20,11 @@ For each phase, an independent reviewer checks the actual diff and acceptance ev
 - Inspect Git status on the setup branch for documentation-only changes.
 - Confirm the empty asset register, accessible fallback, reduced-motion path and human publication controls.
 - Record the human decision and any requested revisions in progress.
+
+## Phase 1 manual acceptance
+
+1. Check out `feat/phase-1-foundation`. With Node 24.17.0, run `npm ci`, then `npm run dev` and open the printed URL.
+2. Confirm the browser tab title is “VELOCITY | Automotive Showroom”. Check that the main heading and introduction are readable against the dark background.
+3. Press Tab on a fresh load. Confirm “Skip to content” is visible with a champagne focus outline. Press Enter and confirm focus moves to the main landmark.
+4. Try a desktop viewport and a 320 px viewport. At 200% zoom, confirm the text stays readable and the page has no horizontal scrolling. In the accessibility tree or a screen reader, verify the banner, main landmark and single level-one heading.
+5. Run the verification commands in the [README](../README.md). Record the date, browser, viewport and any failures in [progress](progress.md).

@@ -2,7 +2,22 @@
 
 VELOCITY is a cinematic 3D automotive showroom. Visitors will explore a vehicle under studio lighting, configure its appearance, and frame a photograph.
 
-**Current phase · 0 — Project setup.** This checkout contains project documentation. Local development commands arrive with the frontend foundation in Phase 1.
+**Current phase · 1 — Frontend foundation.** The shell provides the showroom entry point and basic styling.
+
+## Run locally
+
+Use Node 24.17.0 (see `.node-version`) and npm. Run `npm ci` to install the exact dependency tree from the lockfile, then run `npm run dev` and open the address Vite prints.
+
+```sh
+npm run lint
+npm run typecheck
+npm test
+npm run build
+npx playwright install chromium
+npm run test:e2e
+```
+
+Playwright starts a local preview of the production build. For manual acceptance, follow the [Phase 1 checklist](docs/testing.md#phase-1-manual-acceptance).
 
 | To understand | Read |
 | --- | --- |
