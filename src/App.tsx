@@ -1,18 +1,41 @@
+﻿import { ButtonLink, Container, SectionHeading } from './components'
+
 export default function App() {
   return (
     <>
-      <a className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-10 focus:bg-graphite focus:p-3" href="#main">
-        Skip to content
-      </a>
-      <header className="border-b border-white/15 bg-graphite">
-        <div className="mx-auto max-w-6xl px-6 py-5 text-sm font-semibold tracking-[0.2em]">
-          VELOCITY
-        </div>
+      <a className="skip-link" href="#main">Skip to content</a>
+      <header className="site-header" id="top">
+        <Container className="header-layout">
+          <a className="wordmark" href="#top"><span aria-hidden="true" />VELOCITY</a>
+          <nav aria-label="Primary" className="site-nav">
+            <a href="#showroom">Showroom</a>
+            <a href="#studio">The studio</a>
+          </nav>
+        </Container>
       </header>
-      <main id="main" tabIndex={-1} className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-        <h1 className="text-4xl font-semibold tracking-tight sm:text-7xl">VELOCITY</h1>
-        <p className="mt-4 max-w-prose text-lg">A cinematic automotive showroom.</p>
+      <main id="main" tabIndex={-1}>
+        <Container>
+          <section id="showroom" tabIndex={-1} className="hero" aria-labelledby="showroom-title">
+            <div className="hero-copy">
+              <p className="eyebrow">The automotive showroom</p>
+              <h1 id="showroom-title">VELOCITY</h1>
+              <p className="hero-description">An automotive studio for taking a closer look at form, finish, and the way light moves across a car.</p>
+              <ButtonLink href="#studio">Explore the studio <span aria-hidden="true">↓</span></ButtonLink>
+            </div>
+            <div className="studio-stage" aria-hidden="true">
+              <div className="stage-panel" />
+            </div>
+          </section>
+          <section id="studio" tabIndex={-1} className="studio" aria-labelledby="studio-title">
+            <SectionHeading id="studio-title">The studio</SectionHeading>
+            <div className="studio-copy">
+              <p>A dark room and a single strip of light. That’s where you begin to see how a car’s proportions, surfaces, and finish work together.</p>
+              <ButtonLink href="#showroom" variant="outline">Back to showroom <span aria-hidden="true">↑</span></ButtonLink>
+            </div>
+          </section>
+        </Container>
       </main>
+      <footer className="site-footer"><Container>VELOCITY</Container></footer>
     </>
   )
 }

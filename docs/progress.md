@@ -3,8 +3,9 @@
 | Date | Phase | State | Evidence |
 | --- | --- | --- | --- |
 | 2026-11-26 | 0 · Project setup | Complete | GitHub PR #1 is merged at `5edff79`. Local `main` matched freshly fetched `origin/main` before Phase 1. |
-| 2026-11-26 | 1 · Frontend foundation | Awaiting human acceptance | Semantic shell, locked tooling and GitHub Actions workflow on `feat/phase-1-foundation`. |
-| — | 2–13 | Planned | See the [roadmap](roadmap.md) for each demonstration. |
+| 2026-11-27 | 1 · Frontend foundation | Complete | PR #2 merged at `eed8945`. Clean local `main` matched freshly fetched `origin/main`. |
+| 2026-11-27 | 2 · Visual design system | Awaiting human acceptance | Editorial shell, design tokens and responsive checks on `feat/phase-2-design`. |
+| — | 3–13 | Planned | See the [roadmap](roadmap.md) for each demonstration. |
 
 ## Phase 0 handoff
 
@@ -24,6 +25,14 @@ On Windows with Node 24.17.0, a clean lockfile install from the local npm cache 
 
 Independent review passed with no blocking findings. The reviewer checked the shell, toolchain, tests, CI and lockfile entries for Ubuntu.
 
-Human acceptance is pending. Record the tester, date, viewport or device, result and any corrections after following the [Phase 1 checklist](testing.md#phase-1-manual-acceptance).
+PR #2 merge and the user's authorization to begin Phase 2 close the foundation phase.
+
+## Phase 2 handoff
+
+The wordmark and studio panel use original CSS and system fonts. The shell adds shared containers, section headings and solid and outline links. No package changes were required.
+
+On 2026-11-27, lint, strict type checking, two Vitest tests, the production build, six Playwright Chromium tests and `git diff --check` passed. Browser screenshots covered 320, 768, 1024, 1440 and 1920 px. The browser tests checked overflow, keyboard focus and reduced-motion behavior. Muted body text measures 8.84:1 against studio black, and the outline control border measures 3.43:1 against graphite.
+
+Independent review flagged potential headline overlap at the desktop breakpoint. The heading now scales with its column, with browser checks for clearance at 1024, 1440 and 1920 px. Human acceptance remains pending. Follow the [Phase 2 checklist](testing.md#phase-2-manual-acceptance).
 
 For future entries include the phase scope, changed behavior, automated commands and results, reviewer and finding disposition, manual tester and device, blockers and next authorized action.

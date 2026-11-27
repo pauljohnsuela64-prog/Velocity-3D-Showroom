@@ -13,3 +13,29 @@ test('the production shell fits a narrow screen and supports keyboard skipping',
   await page.keyboard.press('Enter')
   await expect(page.getByRole('main')).toBeFocused()
 })
+
+for (const width of [320, 768, 1024, 1440, 1920]) {
+  test(`showroom layout and reduced-motion navigation at ${width}px`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 900 })
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.goto('/')
+    const action = page.getByRole('link', { name: 'Explore the studio' })
+    await expect(action).toHaveCSS('transition-duration', '0s')
+    await expect(page.getByRole('navigation', { name: 'Primary' })).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width)
+    if (width >= 1024) {
+      const headingEnd = await page.getByRole('heading', { level: 1 }).evaluate((heading) => {
+        const text = document.createRange()
+        text.selectNodeContents(heading)
+        return text.getBoundingClientRect().right
+      })
+      const stage = await page.locator('.studio-stage').boundingBox()
+      expect(headingEnd).toBeLessThan(stage?.x ?? 0)
+    }
+    await page.screenshot({ path: testInfo.outputPath('showroom.png'), fullPage: true })
+    await action.focus()
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/#studio$/)
+    await expect(page.getByRole('region', { name: 'The studio' })).toBeFocused()
+  })
+}
