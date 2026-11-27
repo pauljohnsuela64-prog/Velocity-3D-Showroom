@@ -1,23 +1,157 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 @theme {
   --color-studio: #101114;
   --color-graphite: #202226;
   --color-warm-white: #f4f1eb;
   --color-champagne: #e1c590;
+  --color-muted: #b5b1aa;
+  --color-control: #79746a;
+}
+
+:root {
+  --rule: #36373b;
+  --gutter: clamp(1rem, 5vw, 5rem);
+  --section-space: clamp(3rem, 7vw, 7rem);
+  --duration-feedback: 180ms;
 }
 
 @layer base {
-  html {
-    color-scheme: dark;
-  }
-
-  body {
-    @apply bg-studio font-sans text-warm-white;
-  }
-
+  html { color-scheme: dark; }
+  body { @apply bg-studio font-sans text-warm-white; }
   :focus-visible {
     outline: 2px solid var(--color-champagne);
     outline-offset: 4px;
   }
+}
+
+.page-container {
+  width: min(100% - var(--gutter) * 2, 88rem);
+  margin-inline: auto;
+}
+
+.skip-link {
+  @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-10 focus:bg-graphite focus:p-3;
+}
+
+.site-header, .site-footer { border-color: var(--rule); }
+.site-header { border-bottom-width: 1px; }
+.site-footer {
+  border-top-width: 1px;
+  padding-block: 1.5rem;
+  font-size: .75rem;
+  letter-spacing: .16em;
+  color: var(--color-muted);
+}
+
+.header-layout {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  column-gap: 2rem;
+  padding-block: .5rem;
+}
+
+.wordmark, .site-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+}
+
+.wordmark { gap: .65rem; font-weight: 750; letter-spacing: .19em; }
+.wordmark span {
+  width: .95rem;
+  height: .7rem;
+  transform: skewX(-24deg);
+  border-inline: 3px solid var(--color-champagne);
+}
+
+.site-nav { display: flex; flex-wrap: wrap; gap: 0 1.5rem; }
+.site-nav a { color: var(--color-muted); font-size: .875rem; }
+.site-nav a:hover, .site-nav a:focus-visible { color: var(--color-warm-white); text-decoration: underline; }
+
+.hero { padding-block: var(--section-space); }
+.hero-copy { position: relative; z-index: 1; }
+.eyebrow {
+  color: var(--color-champagne);
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  font-weight: 650;
+}
+
+.hero h1 {
+  font-size: clamp(3rem, 10vw, 9rem);
+  font-weight: 800;
+  line-height: .95;
+  letter-spacing: -.045em;
+  margin-block: 1rem 1.5rem;
+}
+
+.hero-description, .studio-copy p {
+  max-inline-size: 36ch;
+  color: var(--color-muted);
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  line-height: 1.65;
+}
+
+.button-link {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .25rem 1rem;
+  min-block-size: 44px;
+  margin-block-start: 1.5rem;
+  padding: .65rem 1rem;
+  border: 1px solid var(--color-control);
+  font-size: .875rem;
+  font-weight: 650;
+  transition: background-color var(--duration-feedback) ease, color var(--duration-feedback) ease;
+}
+.button-link--solid { background: var(--color-champagne); color: var(--color-studio); border-color: var(--color-champagne); }
+.button-link--solid:hover { background: var(--color-warm-white); }
+.button-link--outline:hover { background: var(--color-graphite); }
+
+.studio-stage {
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  margin-block-start: 2rem;
+  border: 1px solid var(--rule);
+  background: #17181b;
+}
+
+.stage-panel {
+  width: 76%;
+  height: 53%;
+  transform: skewX(-24deg);
+  border-top: 1px solid #887350;
+  border-bottom: 1px solid #38332c;
+  background: linear-gradient(165deg, #3e3629, #202226 32%, #111214 74%);
+}
+
+.studio {
+  display: grid;
+  gap: 1rem;
+  border-top: 1px solid var(--rule);
+  padding-block: var(--section-space);
+}
+
+.section-heading { font-size: clamp(2rem, 5vw, 4.5rem); font-weight: 650; line-height: 1; letter-spacing: -.055em; }
+
+@media (min-width: 64rem) {
+  .hero, .studio { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+  .hero { display: grid; align-items: center; column-gap: 2rem; }
+  .hero-copy { container-type: inline-size; }
+  .hero h1 { font-size: min(20cqi, 8rem); }
+  .studio-stage { margin-block-start: 0; aspect-ratio: 4 / 3; }
+  .studio-copy { padding-inline-start: 2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button-link { transition: none; }
 }

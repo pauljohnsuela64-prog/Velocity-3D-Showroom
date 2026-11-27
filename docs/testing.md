@@ -28,3 +28,11 @@ For each phase, an independent reviewer checks the actual diff and acceptance ev
 3. Press Tab on a fresh load. Confirm “Skip to content” is visible with a champagne focus outline. Press Enter and confirm focus moves to the main landmark.
 4. Try a desktop viewport and a 320 px viewport. At 200% zoom, confirm the text stays readable and the page has no horizontal scrolling. In the accessibility tree or a screen reader, verify the banner, main landmark and single level-one heading.
 5. Run the verification commands in the [README](../README.md). Record the date, browser, viewport and any failures in [progress](progress.md).
+
+## Phase 2 manual acceptance
+
+1. Run `npm ci` and `npm run dev`, then open the printed URL.
+2. View the page at 320, 768, 1024, 1440 and 1920 px. Check that the wordmark and navigation wrap cleanly, the studio panel changes from stacked to side by side at 1024 px, and the headline clears the panel. Repeat at 200% browser zoom.
+3. Tab from a fresh load. Activate the skip link, then test both navigation links and both call-to-action links. Confirm visible focus and that each link takes focus to its destination.
+4. Enable reduced motion and verify that hover and focus feedback remains visible without transitions. Check text and control boundaries on the dark surfaces.
+5. Run the README verification commands. Record the browser, sizes, date and result in [progress](progress.md).
