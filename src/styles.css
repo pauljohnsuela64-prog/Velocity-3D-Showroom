@@ -1,4 +1,4 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 
 @theme {
   --color-studio: #101114;
@@ -134,6 +134,7 @@
   display: grid; place-items: center; width: fit-content; margin-left: auto;
   min-height: 44px; padding-inline: .75rem; color: var(--color-muted); font-size: .75rem;
 }
+.skip-reveal { position: absolute; bottom: .5rem; left: .5rem; min-height: 44px; padding-inline: 1rem; color: var(--color-warm-white); background: var(--color-studio); border: 1px solid var(--color-control); cursor: pointer; }
 .stage-credit:hover { text-decoration: underline; }
 .stage-credit:focus-visible { outline-offset: -3px; }
 

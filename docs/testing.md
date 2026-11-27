@@ -44,3 +44,11 @@ For each phase, an independent reviewer checks the actual diff and acceptance ev
 3. In browser developer tools, block the vehicle GLB request and reload with cache disabled. Confirm the still image and status appear, then unblock and reload to recover.
 4. Disable WebGL in a separate browser session and reload. Check that the shell and credits remain usable. With WebGL enabled, use the browser's WebGL context-loss extension to simulate a lost context and check the still view.
 5. With the vehicle settled and the viewport unchanged, inspect a performance trace for idle rendering. Record the browser, GPU, viewport and observations in progress.
+
+## Phase 4 manual acceptance
+
+1. Build and preview locally. Reload at desktop and phone widths. Watch the type settle while the model loads, then check the camera and reflections on the real vehicle.
+2. Reload with network throttling. Navigate to The studio before the vehicle arrives. Confirm navigation works immediately and the delayed vehicle settles without a reveal.
+3. Reload, activate Skip reveal with a keyboard, and compare the endpoint with natural completion. Resize during the move and check all four corners of the vehicle stay in frame.
+4. Reload with reduced motion, then try switching the preference during a normal reveal. Confirm a static inspection pose and visible controls.
+5. Exercise the Phase 3 failure checks and inspect a performance trace after completion. Record the device, browser and decision in progress.
