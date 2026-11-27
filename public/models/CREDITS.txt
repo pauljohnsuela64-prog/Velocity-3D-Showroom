@@ -1,0 +1,12 @@
+Car Concept, adapted for VELOCITY
+Model and textures by Eric Chadwick, copyright 2024 Darmstadt Graphics Group GmbH.
+Based on Unity Fan's public-domain Free Concept Car 004.
+Source: https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/CarConcept
+License: Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/
+
+VELOCITY adaptation, 2026-11-27: removed texture images, plate and steering
+emblem, unused vertex attributes and paint variants. Retuned solid materials,
+glass and lighting response. Reoriented and scaled the vehicle for the studio.
+The derivative vehicle and stills showing it retain this credit and license
+notice. Khronos and 3D Commerce marks carry separate trademark terms.

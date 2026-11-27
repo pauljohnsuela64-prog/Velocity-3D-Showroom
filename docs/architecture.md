@@ -1,5 +1,9 @@
 # Planned architecture
 
+Phase 3 loads the studio module when its container approaches the viewport. Three.js parses a local GLB and builds a filtered room environment for reflections. React Three Fiber owns the on-demand render loop and Drei applies the environment. A directional light casts a 1024 px shadow map onto the floor. The camera fits the vehicle bounds again on resize, and pixel ratio is capped at 1.5.
+
+The HTML stage owns the loading announcement, credits and fallback image. Leaving the stage component aborts the request, disconnects observers and releases scene resources. After context loss the stage switches to the still image. Reloading starts a new graphics session.
+
 | First need | Responsibility |
 | --- | --- |
 | Phase 1 · React, TypeScript, Vite, Tailwind | Render the semantic page shell and build static files with basic color tokens. ESLint and TypeScript check source. Vitest and React Testing Library verify shell markup, and Playwright exercises the production build in Chromium. GitHub Actions runs the same checks after authorized publication. |

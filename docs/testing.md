@@ -36,3 +36,11 @@ For each phase, an independent reviewer checks the actual diff and acceptance ev
 3. Tab from a fresh load. Activate the skip link, then test both navigation links and both call-to-action links. Confirm visible focus and that each link takes focus to its destination.
 4. Enable reduced motion and verify that hover and focus feedback remains visible without transitions. Check text and control boundaries on the dark surfaces.
 5. Run the README verification commands. Record the browser, sizes, date and result in [progress](progress.md).
+
+## Phase 3 manual acceptance
+
+1. Run the build and open the local preview. On a cold reload, inspect the stage as it loads. Confirm the final vehicle has readable wheels, paint highlights, glass and a contact shadow.
+2. Resize between a 320 px phone layout and a large desktop. Check that the whole vehicle stays inside the stage and the skip link, studio navigation and vehicle credits work with the keyboard.
+3. In browser developer tools, block the vehicle GLB request and reload with cache disabled. Confirm the still image and status appear, then unblock and reload to recover.
+4. Disable WebGL in a separate browser session and reload. Check that the shell and credits remain usable. With WebGL enabled, use the browser's WebGL context-loss extension to simulate a lost context and check the still view.
+5. With the vehicle settled and the viewport unchanged, inspect a performance trace for idle rendering. Record the browser, GPU, viewport and observations in progress.

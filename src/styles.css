@@ -115,6 +115,7 @@
 .button-link--outline:hover { background: var(--color-graphite); }
 
 .studio-stage {
+  position: relative;
   display: grid;
   place-items: center;
   isolation: isolate;
@@ -125,14 +126,16 @@
   background: #17181b;
 }
 
-.stage-panel {
-  width: 76%;
-  height: 53%;
-  transform: skewX(-24deg);
-  border-top: 1px solid #887350;
-  border-bottom: 1px solid #38332c;
-  background: linear-gradient(165deg, #3e3629, #202226 32%, #111214 74%);
+.studio-canvas, .studio-still { position: absolute; inset: 0; width: 100%; height: 100%; }
+.studio-canvas canvas { display: block; width: 100%; height: 100%; }
+.studio-still { object-fit: contain; background: #292a2d; }
+.stage-status { position: absolute; background: var(--color-studio); top: .5rem; left: .5rem; right: .5rem; padding: .4rem .65rem; font-size: .875rem; }
+.stage-credit {
+  display: grid; place-items: center; width: fit-content; margin-left: auto;
+  min-height: 44px; padding-inline: .75rem; color: var(--color-muted); font-size: .75rem;
 }
+.stage-credit:hover { text-decoration: underline; }
+.stage-credit:focus-visible { outline-offset: -3px; }
 
 .studio {
   display: grid;
