@@ -1,5 +1,7 @@
 ﻿import { ButtonLink, Container, SectionHeading } from './components'
 
+import VehicleStage from './VehicleStage'
+
 export default function App() {
   return (
     <>
@@ -22,9 +24,7 @@ export default function App() {
               <p className="hero-description">An automotive studio for taking a closer look at form, finish, and the way light moves across a car.</p>
               <ButtonLink href="#studio">Explore the studio <span aria-hidden="true">↓</span></ButtonLink>
             </div>
-            <div className="studio-stage" aria-hidden="true">
-              <div className="stage-panel" />
-            </div>
+            <VehicleStage />
           </section>
           <section id="studio" tabIndex={-1} className="studio" aria-labelledby="studio-title">
             <SectionHeading id="studio-title">The studio</SectionHeading>

@@ -4,8 +4,9 @@
 | --- | --- | --- | --- |
 | 2026-11-26 | 0 · Project setup | Complete | GitHub PR #1 is merged at `5edff79`. Local `main` matched freshly fetched `origin/main` before Phase 1. |
 | 2026-11-27 | 1 · Frontend foundation | Complete | PR #2 merged at `eed8945`. Clean local `main` matched freshly fetched `origin/main`. |
-| 2026-11-27 | 2 · Visual design system | Awaiting human acceptance | Editorial shell, design tokens and responsive checks on `feat/phase-2-design`. |
-| — | 3–13 | Planned | See the [roadmap](roadmap.md) for each demonstration. |
+| 2026-11-27 | 2 · Visual design system | Complete | Verified PR #3 merged at `d7def7f`. Clean local main matched origin/main. |
+| 2026-11-27 | 3 · 3D rendering engine | Awaiting human acceptance | Local branch `feat/phase-3-3d-engine`. |
+| — | 4–13 | Planned | See the [roadmap](roadmap.md) for each demonstration. |
 
 ## Phase 0 handoff
 
@@ -33,6 +34,14 @@ The wordmark and studio panel use original CSS and system fonts. The shell adds 
 
 On 2026-11-27, lint, strict type checking, two Vitest tests, the production build, six Playwright Chromium tests and `git diff --check` passed. Browser screenshots covered 320, 768, 1024, 1440 and 1920 px. The browser tests checked overflow, keyboard focus and reduced-motion behavior. Muted body text measures 8.84:1 against studio black, and the outline control border measures 3.43:1 against graphite.
 
-Independent review flagged potential headline overlap at the desktop breakpoint. The heading now scales with its column, with browser checks for clearance at 1024, 1440 and 1920 px. Human acceptance remains pending. Follow the [Phase 2 checklist](testing.md#phase-2-manual-acceptance).
+Independent review flagged potential headline overlap at the desktop breakpoint. The heading now scales with its column, with browser checks for clearance at 1024, 1440 and 1920 px. PR #3 and the user's authorization to begin Phase 3 close the design phase.
 
 For future entries include the phase scope, changed behavior, automated commands and results, reviewer and finding disposition, manual tester and device, blockers and next authorized action.
+
+## Phase 3 handoff
+
+Lint, strict type checking, four unit tests, the production build and nine Chromium tests passed. Tests cover five viewport widths, missing GLB, unavailable WebGL2 and context loss. Independent code review checked cancellation, disposal and framing. Visual review caught glowing wheels after emissive maps were removed. The corrected material reflects studio lighting, and the fallback still uses the corrected render.
+
+One Windows Chromium run at 1440 × 900 with ANGLE SwiftShader and a 735 × 551 drawing buffer reached ready in 4.61 seconds, including a 111 ms localhost model request. Instrumentation counted 502 startup draw calls and zero additional draws over a settled 500 ms window. These measurements cover software rendering and local delivery. Physical mobile GPU and network measurements remain open.
+
+The vehicle is 6,754,016 bytes and its WebP still is 26,624 bytes. The lazy renderer chunk is approximately 860 kB minified or 234 kB gzipped and triggers Vite's default size advisory. The derivative omits textured tire tread, baked occlusion and paint microflakes. Human acceptance follows the [Phase 3 checklist](testing.md#phase-3-manual-acceptance).

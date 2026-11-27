@@ -32,6 +32,9 @@ for (const width of [320, 768, 1024, 1440, 1920]) {
       const stage = await page.locator('.studio-stage').boundingBox()
       expect(headingEnd).toBeLessThan(stage?.x ?? 0)
     }
+    const stage = page.locator('.studio-stage')
+    await stage.scrollIntoViewIfNeeded()
+    await expect(stage).toHaveAttribute('data-state', 'ready', { timeout: 30_000 })
     await page.screenshot({ path: testInfo.outputPath('showroom.png'), fullPage: true })
     await action.focus()
     await page.keyboard.press('Enter')
