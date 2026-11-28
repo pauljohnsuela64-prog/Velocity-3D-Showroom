@@ -144,7 +144,7 @@ test('navigating during a slow load skips the pending reveal', async ({ page }) 
   await expect(stage).not.toHaveAttribute('data-played', 'true')
 })
 
-for (const interruption of ['skip', 'reduce'] as const) {
+for (const interruption of ['skip', 'reduce', 'scroll'] as const) {
   test(`settles an active reveal on ${interruption} and preserves focus`, async ({ page }) => {
     // Hold the shot between focus and input so natural completion cannot activate credits.
     const start = new Date('2026-01-01T00:00:00Z')
@@ -158,7 +158,12 @@ for (const interruption of ['skip', 'reduce'] as const) {
     }, { timeout: 30_000 }).toBe(true)
     await button.focus({ timeout: 30_000 })
     if (interruption === 'skip') await page.keyboard.press('Enter')
-    else await page.emulateMedia({ reducedMotion: 'reduce' })
+    else if (interruption === 'reduce') await page.emulateMedia({ reducedMotion: 'reduce' })
+    else {
+      await page.locator('#front-wheel').evaluate(element => element.scrollIntoView())
+      await page.clock.runFor(100)
+      await expect(page.getByRole('img', { name: 'Front wheel and fender detail' })).toBeVisible()
+    }
     await expect(page.locator('.studio-stage')).toHaveAttribute('data-state', 'ready')
     await expect(page.getByRole('link', { name: 'Vehicle credits' })).toBeFocused()
   })

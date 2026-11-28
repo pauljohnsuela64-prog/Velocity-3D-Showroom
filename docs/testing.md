@@ -52,3 +52,12 @@ For each phase, an independent reviewer checks the actual diff and acceptance ev
 3. Reload, activate Skip reveal with a keyboard, and compare the endpoint with natural completion. Resize during the move and check all four corners of the vehicle stay in frame.
 4. Reload with reduced motion, then try switching the preference during a normal reveal. Confirm a static inspection pose and visible controls.
 5. Exercise the Phase 3 failure checks and inspect a performance trace after completion. Record the device, browser and decision in progress.
+
+## Phase 5 manual acceptance
+
+1. Run the production build and preview. Scroll slowly from the opening view to the front wheel, then the headlamp. Check that the spokes and lens are visible and the text describes the part in view.
+2. Reverse the scroll, then jump quickly between the chapter links. Confirm the same chapter gives the same view, the hero never restarts, and the page scrolls freely beyond the pinned stage.
+3. On a narrow viewport, navigate with Tab and Shift+Tab. Check that chapter links clear the pinned stage, credits remain reachable and rotating or resizing the viewport preserves useful framing.
+4. Load the preview directly at /#headlamp with a throttled connection. Verify that the model opens at the lamp when ready. Block the GLB and reload to check the still, status, credits and chapter navigation.
+5. Enable reduced motion while reading, then reload. Confirm the chapters remain readable in order, the stage releases its pin and the vehicle holds the overview. Check a performance trace after scrolling stops.
+6. Record browser, device, viewport, date and acceptance decision in progress.

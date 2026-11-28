@@ -6,8 +6,9 @@
 | 2026-11-27 | 1 · Frontend foundation | Complete | PR #2 merged at `eed8945`. Clean local `main` matched freshly fetched `origin/main`. |
 | 2026-11-27 | 2 · Visual design system | Complete | Verified PR #3 merged at `d7def7f`. Clean local main matched origin/main. |
 | 2026-11-27 | 3 · 3D rendering engine | Complete | PR #4 merged at `8abca87`. Clean main matched origin/main. |
-| 2026-11-27 | 4 · Cinematic hero | Awaiting human acceptance | Local branch `feat/phase-4-hero`. |
-| — | 5–13 | Planned | See the [roadmap](roadmap.md) for each demonstration. |
+| 2026-11-28 | 4 · Cinematic hero | Complete | PR #5 merged at `d5485fe` and CI run 46108466687 passed. |
+| 2026-11-28 | 5 · Scroll-driven experience | Awaiting human acceptance | Local branch `feat/phase-5-scroll`. |
+| — | 6–13 | Planned | See the [roadmap](roadmap.md) for each demonstration. |
 
 ## Phase 0 handoff
 
@@ -51,7 +52,7 @@ The vehicle is 6,754,016 bytes and its WebP still is 26,624 bytes. The lazy rend
 
 The typography entrance settles in 740 ms and the camera and reflections settle over 1.45 s from the first rendered vehicle frame. Independent desktop and phone visual review passed. Code review identified keyboard focus loss and delayed playback after navigation. The stage now preserves focus and remembers navigation while the GLB loads.
 
-Lint, strict type checking, four unit tests, the production build and twelve Chromium tests passed. The final 1440 � 900 Windows SwiftShader run used a 735 � 551 drawing buffer. Navigation to settled took 4.063 s, including a 73 ms local model request and 1.498 s observed reveal. The test counted 1,382 startup and reveal draw calls and zero further draws during 500 ms idle. Physical phone GPU timing remains unmeasured. The lazy renderer still exceeds Vite's 500 kB minified chunk advisory (234 kB gzipped). Human acceptance remains pending.
+Lint, strict type checking, four unit tests, the production build and twelve Chromium tests passed. The final 1440 × 900 Windows SwiftShader run used a 735 × 551 drawing buffer. Navigation to settled took 4.063 s, including a 73 ms local model request and 1.498 s observed reveal. The test counted 1,382 startup and reveal draw calls and zero further draws during 500 ms idle. Physical phone GPU timing remains unmeasured. The lazy renderer still exceeds Vite's 500 kB minified chunk advisory (234 kB gzipped). PR #5 and authorization for Phase 5 close the hero phase.
 
 ## PR #5 CI investigation
 
@@ -61,6 +62,18 @@ On the original implementation, a single local SwiftShader worker with 750 ms fr
 
 The reveal now seeks a paused GSAP tween using elapsed monotonic time from the first rendered vehicle frame. Each available frame applies the same easing, camera and lighting values and invalidates the demand renderer. Skip seeks the endpoint, and completion or teardown cancels the pending frame. Four repetitions each of the original test and the slow-frame regression passed with two workers and the existing timeouts. Independent review checked callback delivery, teardown and idle behavior.
 
-Manual retest: preview the production build with reduced motion off, apply CPU throttling and reload. Check that the reveal settles, keeps the final framing and stops drawing. Repeat with keyboard Skip reveal, reduced motion and simulated context loss using the Phase 4 and Phase 3 acceptance checklists. Hosted confirmation awaits a human-authorized run containing this change.
+Manual retest: preview the production build with reduced motion off, apply CPU throttling and reload. Check that the reveal settles, keeps the final framing and stops drawing. Repeat with keyboard Skip reveal, reduced motion and simulated context loss using the Phase 4 and Phase 3 acceptance checklists. Hosted confirmation passed in CI run 46108466687.
 
 Final verification started the shot clock on the first browser frame after initial GPU submission. Playwright virtual time holds the two interruption tests between focus and input so that Enter cannot follow the credits link after natural completion. The natural, sparse-frame, skip and reduced-motion checks passed three repetitions each with two workers (12/12). Lint, strict type checking, four unit tests, the production build, all thirteen browser tests and the whitespace check passed. The final SwiftShader sample recorded 1.666 seconds from revealing to ready and zero draws during the settled 500 ms interval. Independent review passed on the final changes.
+
+## Phase 5 handoff
+
+Native scrolling now moves the single CarConcept stage through overview, near-side front wheel and headlamp views. The detail bounds come from the model's wheel and lamp meshes. Chapter navigation retains the latest scroll position during loading. Entering the story settles the hero before scroll takes ownership. Reduced motion restores the overview and unpins the stage.
+
+Independent code and visual review checked desktop wheel and lamp framing, mobile wheel framing, readable chapter text and credits. Review prompted extra scroll clearance for mobile keyboard links. Browser verification also caught a direct fragment landing before React mounted the chapter. Initial chapter positioning now runs after mount. The reduced-motion test waits for the restored camera matrix to reach WebGL before checking the static view.
+
+Lint, strict type checking, five unit tests, the production build, sixteen Playwright tests and whitespace checks passed. Four timing-sensitive browser cases passed three repetitions each with two workers. Tests inspect actual camera matrix uploads, reversal, resize, a slow deep link, active hero handoff, sparse frames and idle drawing.
+
+A 1440 by 900 Windows Chromium SwiftShader run with three concurrent workers recorded 5.731 seconds to the settled hero, including a 44 ms localhost GLB request and 1.526 seconds of reveal. The 735 by 551 drawing buffer registered zero new draws during 500 ms of hero rest. The detail test also observed zero indexed draws over 500 ms after scrolling and resizing. These samples cover software rendering. Physical mobile GPU and touch testing remain open. The lazy renderer is 235.11 kB gzipped and still triggers Vite's chunk size advisory.
+
+Human acceptance uses the [Phase 5 checklist](testing.md#phase-5-manual-acceptance).

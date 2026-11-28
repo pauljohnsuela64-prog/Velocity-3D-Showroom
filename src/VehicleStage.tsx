@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import type { StoryProgress } from './storyProgress'
 
 const messages = {
   loading: 'Loading the 3D vehicle…',
@@ -11,7 +12,7 @@ const messages = {
 
 export type StageState = keyof typeof messages
 
-export default function VehicleStage() {
+export default function VehicleStage({ story }: { story?: StoryProgress }) {
   const [skip] = useState(() => new AbortController())
   const mount = useRef<HTMLDivElement>(null)
   const [state, setState] = useState<StageState>('loading')
@@ -35,7 +36,7 @@ export default function VehicleStage() {
     const start = async () => {
       try {
         const { mountStudio } = await import('./studio')
-        if (!lifecycle.signal.aborted) await mountStudio(host, lifecycle.signal, report, skip.signal)
+        if (!lifecycle.signal.aborted) await mountStudio(host, lifecycle.signal, report, skip.signal, story)
       } catch {
         if (!lifecycle.signal.aborted) setState('error')
       }
@@ -56,7 +57,7 @@ export default function VehicleStage() {
       observer?.disconnect()
       lifecycle.abort()
     }
-  }, [skip, report])
+  }, [skip, report, story])
 
   return (
     <figure>
