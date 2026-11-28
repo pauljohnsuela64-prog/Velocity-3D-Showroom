@@ -89,7 +89,7 @@
   margin-block: 1rem 1.5rem;
 }
 
-.hero-description, .studio-copy p {
+.hero-description {
   max-inline-size: 36ch;
   color: var(--color-muted);
   font-size: clamp(1rem, 1.8vw, 1.25rem);
@@ -153,9 +153,53 @@
   .hero-copy { container-type: inline-size; }
   .hero h1 { font-size: min(20cqi, 8rem); }
   .studio-stage { margin-block-start: 0; aspect-ratio: 4 / 3; }
-  .studio-copy { padding-inline-start: 2rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .button-link { transition: none; }
+}
+
+/* The browser pins the single scene within the story's normal scroll range. */
+.hero { --stage-mobile-height: min(38svh, calc((100vw - var(--gutter) * 2) * 9 / 16)); }
+.story-stage { align-self: start; background: var(--color-studio); z-index: 2; }
+.hero .studio { display: block; }
+.studio .section-heading { margin-block-end: 1.5rem; }
+.chapter { padding-block: 1.25rem 2rem; border-top: 1px solid var(--rule); }
+.chapter-copy { max-width: 36ch; }
+.chapter h3 {
+  margin-block-end: 1rem;
+  color: var(--color-champagne);
+  font-size: clamp(1.6rem, 3vw, 3rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -.035em;
+}
+.chapter p { color: var(--color-muted); font-size: clamp(1rem, 1.6vw, 1.2rem); line-height: 1.65; }
+.chapter, #studio { scroll-margin-top: 1rem; }
+
+@media (min-width: 64rem) {
+  .hero { align-items: start; }
+  .hero-copy { align-self: center; }
+  .story-stage { grid-column: 2; grid-row: 1 / span 2; }
+  .hero .studio { grid-column: 1; grid-row: 2; padding-inline-start: 0; }
+  .hero-copy { min-height: min(60svh, 40rem); align-content: center; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .story-stage { position: sticky; top: 0; }
+  .story-stage .studio-stage { margin-block-start: 0; }
+  .chapter { min-height: 70svh; }
+  #headlamp { min-height: 85svh; }
+}
+
+@media (prefers-reduced-motion: no-preference) and (max-width: 63.999rem) {
+  .story-stage { margin-top: 2rem; }
+  .story-stage .studio-stage { height: var(--stage-mobile-height); aspect-ratio: auto; }
+  #studio, .chapter, .studio a { scroll-margin-top: calc(var(--stage-mobile-height) + 44px + 1rem); }
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 64rem) {
+  .story-stage { top: 5svh; }
+  .story-stage .studio-stage { max-height: 76svh; }
+  .hero-copy { min-height: max(72svh, 28rem); }
 }

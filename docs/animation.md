@@ -11,3 +11,9 @@ Use transforms and opacity for interface transitions. Start with 160–240 ms fo
 The HTML entrance starts immediately. The eyebrow rises over 320 ms. The title begins at 60 ms and settles at 740 ms. The description and studio link enter from 180 ms, 80 ms apart. Controls remain in the document flow and usable throughout.
 
 The first rendered vehicle frame starts a separate 1.45 s eased camera move. Framing projects the vehicle bounds at the current angle and aspect ratio throughout the move. Reflected studio light rises from 0.42 to 0.95. The tween requests a scene frame on updates. Completion, skip or reduced motion leaves the camera in its inspection pose. Context loss and teardown kill active scene motion.
+
+## Phase 5 scroll story
+
+One sticky stage follows the native page through the front wheel and headlamp chapters. ScrollTrigger measures each chapter's anchor landing position. The overview, wheel and lamp correspond to progress 0, 0.5 and 1. Typography rises by 12 px as each chapter enters. The camera and reflected light move directly with scroll distance, so reversing or jumping to an anchor immediately selects the corresponding composition.
+
+The first positive story progress settles the hero and releases its camera. Returning to the beginning restores the inspection view without replaying the entrance. Reduced motion removes the sticky layout, camera travel and chapter text animations. The same headings, links, credits and fallback image remain available.

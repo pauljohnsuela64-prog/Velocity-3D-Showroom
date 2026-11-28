@@ -9,6 +9,7 @@ import {
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import type { StageState } from './VehicleStage'
+import type { StoryProgress } from './storyProgress'
 
 extend({ DirectionalLight, Mesh, MeshStandardMaterial, PlaneGeometry })
 
@@ -34,9 +35,10 @@ function releaseModel(model: Object3D) {
 }
 
 // Project the eight corners onto the camera axes, leaving a margin on every edge.
-function frame(camera: PerspectiveCamera, box: Box3, aspect: number, progress: number) {
+function frame(camera: PerspectiveCamera, box: Box3, aspect: number, progress: number, viewDirection?: Vector3) {
   const center = box.getCenter(new Vector3())
-  const direction = new Vector3(0.7 + 0.32 * (1 - progress), 0.32 - 0.06 * (1 - progress), 1).normalize()
+  const direction = viewDirection ?? new Vector3(0.7 + 0.32 * (1 - progress), 0.32 - 0.06 * (1 - progress), 1)
+  direction.normalize()
   const right = new Vector3().crossVectors(camera.up, direction).normalize()
   const up = new Vector3().crossVectors(direction, right)
   const slope = Math.tan(camera.fov * Math.PI / 360)
@@ -56,7 +58,31 @@ function frame(camera: PerspectiveCamera, box: Box3, aspect: number, progress: n
   camera.updateProjectionMatrix()
 }
 
-export async function mountStudio(host: HTMLElement, lifetime: AbortSignal, report: (state: StageState) => void, skip?: AbortSignal) {
+// The two lamps share a mesh. Select near-side vertices after the GLB's root transform.
+function storyShots(model: Object3D, bounds: Box3) {
+  const wheel = model.getObjectByName('WheelFrontR')
+  const lamps = model.getObjectByName('BodyHeadlights')
+  if (!wheel || !(lamps instanceof Mesh)) throw new Error('Vehicle detail geometry unavailable')
+  const wheelBox = new Box3().setFromObject(wheel, true)
+  const lampBox = new Box3()
+  const point = new Vector3()
+  const vertices = lamps.geometry.getAttribute('position')
+  const middle = bounds.getCenter(new Vector3()).z
+  for (let i = 0; i < vertices.count; i++) {
+    point.fromBufferAttribute(vertices, i).applyMatrix4(lamps.matrixWorld)
+    if (point.z > middle) lampBox.expandByPoint(point)
+  }
+  if (lampBox.isEmpty()) throw new Error('Near-side lamp geometry unavailable')
+  // Include the fender and hood around the details for orientation.
+  const wheelHeight = wheelBox.max.y - wheelBox.min.y
+  return [
+    { box: bounds, direction: new Vector3(0.7, 0.32, 1), light: 0.95 },
+    { box: wheelBox.expandByScalar(wheelHeight * 0.25), direction: new Vector3(0.22, 0.18, 1), light: 0.78 },
+    { box: lampBox.expandByScalar(wheelHeight * 0.42), direction: new Vector3(1, 0.48, 0.75), light: 1.13 },
+  ] as const
+}
+
+export async function mountStudio(host: HTMLElement, lifetime: AbortSignal, report: (state: StageState) => void, skip?: AbortSignal, story?: StoryProgress) {
   const canvas = document.createElement('canvas')
   canvas.setAttribute('role', 'img')
   canvas.setAttribute('aria-label', 'Three-quarter studio view of the vehicle')
@@ -75,11 +101,13 @@ export async function mountStudio(host: HTMLElement, lifetime: AbortSignal, repo
   let observer: ResizeObserver | undefined
   let reveal: gsap.core.Tween | undefined
   let revealFrame = 0
+  let unsubscribeStory: (() => void) | undefined
   const stop = () => {
     if (session.signal.aborted) return
     session.abort()
     lifetime.removeEventListener('abort', stop)
     cancelAnimationFrame(revealFrame)
+    unsubscribeStory?.()
     reveal?.kill()
     observer?.disconnect()
     root?.unmount()
@@ -124,15 +152,37 @@ export async function mountStudio(host: HTMLElement, lifetime: AbortSignal, repo
     }
     const size = host.getBoundingClientRect()
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const motion = { progress: preference.matches || skip?.aborted || document.hidden ? 1 : 0 }
+    const shots = storyShots(model, bounds)
+    let position = preference.matches ? 0 : story?.get() ?? 0
+    const motion = { progress: position > 0 || preference.matches || skip?.aborted || document.hidden ? 1 : 0 }
     let aspect = size.width / size.height
-    frame(camera, bounds, aspect, motion.progress)
+    const target = new Box3()
+    const direction = new Vector3()
+    function compose() {
+      const description = position < 0.25 ? 'Three-quarter studio view of the vehicle' :
+        position < 0.75 ? 'Front wheel and fender detail' : 'Front headlamp and hood detail'
+      if (canvas.getAttribute('aria-label') !== description) canvas.setAttribute('aria-label', description)
+      if (position === 0) {
+        frame(camera, bounds, aspect, motion.progress)
+        scene.environmentIntensity = 0.42 + 0.53 * motion.progress
+        return
+      }
+      const [from, to] = position <= 0.5 ? [shots[0], shots[1]] : [shots[1], shots[2]]
+      const t = position <= 0.5 ? 2 * position : 2 * position - 1
+      const mix = t * t * (3 - 2 * t)
+      target.min.copy(from.box.min).lerp(to.box.min, mix)
+      target.max.copy(from.box.max).lerp(to.box.max, mix)
+      direction.copy(from.direction).lerp(to.direction, mix)
+      frame(camera, target, aspect, 1, direction)
+      scene.environmentIntensity = from.light + (to.light - from.light) * mix
+    }
+    compose()
     root = createRoot(canvas)
     await root.configure({ gl, scene, camera, size, shadows: true, frameloop: 'demand', dpr: [1, 1.5] })
     if (session.signal.aborted) return
     let presented = false
     const store = root.render(<>
-      <Environment map={environment.texture} environmentIntensity={0.42 + 0.53 * motion.progress} />
+      <Environment map={environment.texture} environmentIntensity={scene.environmentIntensity} />
       <directionalLight position={[3, 6, 2]} intensity={2.4} color="#fff2d9" castShadow
         shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-normalBias={0.015} />
       <primitive object={model} />
@@ -145,8 +195,7 @@ export async function mountStudio(host: HTMLElement, lifetime: AbortSignal, repo
               reveal = gsap.to(motion, {
                 progress: 1, duration: 1.45, ease: 'power2.inOut', paused: true,
                 onUpdate: () => {
-                  frame(camera, bounds, aspect, motion.progress)
-                  scene.environmentIntensity = 0.42 + 0.53 * motion.progress
+                  compose()
                   store.getState().invalidate()
                 },
                 onComplete: () => {
@@ -180,21 +229,31 @@ export async function mountStudio(host: HTMLElement, lifetime: AbortSignal, repo
       if (reveal ? reveal.progress() === 1 : motion.progress === 1) return
       reveal?.progress(1)
       motion.progress = 1
-      frame(camera, bounds, aspect, 1)
-      scene.environmentIntensity = 0.95
+      compose()
+      store.getState().invalidate()
+    }
+    const seek = () => {
+      const next = preference.matches ? 0 : story?.get() ?? 0
+      if (next === position) return
+      // Settle the elapsed-time reveal before scroll takes permanent camera ownership.
+      settle()
+      position = next
+      compose()
       store.getState().invalidate()
     }
     const options = { signal: session.signal }
-    preference.addEventListener('change', settle, options)
+    preference.addEventListener('change', () => { settle(); seek() }, options)
     skip?.addEventListener('abort', settle, options)
     document.addEventListener('visibilitychange', settle, options)
     if (skip?.aborted || preference.matches || document.hidden) settle()
+    unsubscribeStory = story?.subscribe(seek)
+    seek()
     observer = new ResizeObserver(() => {
       const { width, height } = host.getBoundingClientRect()
       if (width && height) {
         store.getState().setSize(width, height)
         aspect = width / height
-        frame(camera, bounds, aspect, motion.progress)
+        compose()
         store.getState().invalidate()
       }
     })

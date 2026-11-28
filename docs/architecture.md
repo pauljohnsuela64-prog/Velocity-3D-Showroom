@@ -16,3 +16,9 @@ The HTML stage owns the loading announcement, credits and fallback image. Leavin
 Keep model IDs, option definitions and allowed combinations in vehicle data. A control changes a selected option ID. The summary reads the selection and the scene maps it to a material. Keep transient camera positions and frame updates inside the scene to avoid rerendering the interface every frame.
 
 Lazy-load the viewer behind a readable HTML shell. Preserve a licensed still and textual options for loading errors and unavailable WebGL. Measure frame time, draw calls, texture memory and initial download on a named device. Cap rendering resolution, reduce shadows and pause idle rendering as measurements warrant. Release obsolete geometry, textures and materials when switching vehicles.
+
+## Scroll and camera ownership
+
+The page publishes a clamped progress value outside React's render cycle. The renderer reads the current value after loading, subscribes to changes and unsubscribes on teardown. A single camera composition function handles the elapsed-time hero reveal, reversible story positions and resizing. Redundant progress updates request no frame.
+
+The detail shots use world-space bounds from the local CarConcept. The wheel uses WheelFrontR. Both lamps share BodyHeadlights, so the renderer selects vertices on the near side and frames the lens with adjacent bodywork. A smooth interpolation between bounds, viewing directions and reflection intensities keeps each chapter reversible. The model names and orientation are specific to this asset.

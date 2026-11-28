@@ -2,7 +2,7 @@
 
 VELOCITY is a cinematic 3D automotive showroom. Visitors will explore a vehicle under studio lighting, configure its appearance, and frame a photograph.
 
-**Current phase · 4 — Cinematic hero.** The showroom displays a locally hosted vehicle with a short camera and lighting reveal. The page also provides a still view for browsers that cannot render the scene.
+**Current phase · 5 — Scroll-driven experience.** Scroll through the CarConcept studio study to move from the whole vehicle to its front wheel and headlamp. The page offers a static reading experience with reduced motion and a local vehicle still when WebGL is unavailable.
 
 ## Run locally
 
@@ -17,7 +17,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Playwright starts a local preview of the production build. For manual acceptance, follow the [Phase 4 checklist](docs/testing.md#phase-4-manual-acceptance).
+Playwright starts a local preview of the production build. For manual acceptance, follow the [Phase 5 checklist](docs/testing.md#phase-5-manual-acceptance).
 
 | To understand | Read |
 | --- | --- |
