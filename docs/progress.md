@@ -5,8 +5,9 @@
 | 2026-11-26 | 0 · Project setup | Complete | GitHub PR #1 is merged at `5edff79`. Local `main` matched freshly fetched `origin/main` before Phase 1. |
 | 2026-11-27 | 1 · Frontend foundation | Complete | PR #2 merged at `eed8945`. Clean local `main` matched freshly fetched `origin/main`. |
 | 2026-11-27 | 2 · Visual design system | Complete | Verified PR #3 merged at `d7def7f`. Clean local main matched origin/main. |
-| 2026-11-27 | 3 · 3D rendering engine | Awaiting human acceptance | Local branch `feat/phase-3-3d-engine`. |
-| — | 4–13 | Planned | See the [roadmap](roadmap.md) for each demonstration. |
+| 2026-11-27 | 3 · 3D rendering engine | Complete | PR #4 merged at `8abca87`. Clean main matched origin/main. |
+| 2026-11-27 | 4 · Cinematic hero | Awaiting human acceptance | Local branch `feat/phase-4-hero`. |
+| — | 5–13 | Planned | See the [roadmap](roadmap.md) for each demonstration. |
 
 ## Phase 0 handoff
 
@@ -44,4 +45,22 @@ Lint, strict type checking, four unit tests, the production build and nine Chrom
 
 One Windows Chromium run at 1440 × 900 with ANGLE SwiftShader and a 735 × 551 drawing buffer reached ready in 4.61 seconds, including a 111 ms localhost model request. Instrumentation counted 502 startup draw calls and zero additional draws over a settled 500 ms window. These measurements cover software rendering and local delivery. Physical mobile GPU and network measurements remain open.
 
-The vehicle is 6,754,016 bytes and its WebP still is 26,624 bytes. The lazy renderer chunk is approximately 860 kB minified or 234 kB gzipped and triggers Vite's default size advisory. The derivative omits textured tire tread, baked occlusion and paint microflakes. Human acceptance follows the [Phase 3 checklist](testing.md#phase-3-manual-acceptance).
+The vehicle is 6,754,016 bytes and its WebP still is 26,624 bytes. The lazy renderer chunk is approximately 860 kB minified or 234 kB gzipped and triggers Vite's default size advisory. The derivative omits textured tire tread, baked occlusion and paint microflakes. PR #4 and authorization for Phase 4 close the renderer phase.
+
+## Phase 4 handoff
+
+The typography entrance settles in 740 ms and the camera and reflections settle over 1.45 s from the first rendered vehicle frame. Independent desktop and phone visual review passed. Code review identified keyboard focus loss and delayed playback after navigation. The stage now preserves focus and remembers navigation while the GLB loads.
+
+Lint, strict type checking, four unit tests, the production build and twelve Chromium tests passed. The final 1440 � 900 Windows SwiftShader run used a 735 � 551 drawing buffer. Navigation to settled took 4.063 s, including a 73 ms local model request and 1.498 s observed reveal. The test counted 1,382 startup and reveal draw calls and zero further draws during 500 ms idle. Physical phone GPU timing remains unmeasured. The lazy renderer still exceeds Vite's 500 kB minified chunk advisory (234 kB gzipped). Human acceptance remains pending.
+
+## PR #5 CI investigation
+
+Run 46019058137 used two Playwright workers. The failed test observed loading twice and revealing twelve times before the overall 30 s test deadline. Reaching revealing requires a rendered scene frame. The asset and renderer had therefore started successfully. The assertion's 30 s allowance also shares the overall test budget with page setup.
+
+On the original implementation, a single local SwiftShader worker with 750 ms frame gaps stayed in revealing through fifteen assertion polls over six seconds. GSAP 3.15.1 smooths gaps above 500 ms to 33 ms of tween time. Repeated gaps delayed the completion callback and kept requesting scene frames. Concurrent software rendering can create contention. The hosted log contains no frame timings to establish its exact contribution.
+
+The reveal now seeks a paused GSAP tween using elapsed monotonic time from the first rendered vehicle frame. Each available frame applies the same easing, camera and lighting values and invalidates the demand renderer. Skip seeks the endpoint, and completion or teardown cancels the pending frame. Four repetitions each of the original test and the slow-frame regression passed with two workers and the existing timeouts. Independent review checked callback delivery, teardown and idle behavior.
+
+Manual retest: preview the production build with reduced motion off, apply CPU throttling and reload. Check that the reveal settles, keeps the final framing and stops drawing. Repeat with keyboard Skip reveal, reduced motion and simulated context loss using the Phase 4 and Phase 3 acceptance checklists. Hosted confirmation awaits a human-authorized run containing this change.
+
+Final verification started the shot clock on the first browser frame after initial GPU submission. Playwright virtual time holds the two interruption tests between focus and input so that Enter cannot follow the credits link after natural completion. The natural, sparse-frame, skip and reduced-motion checks passed three repetitions each with two workers (12/12). Lint, strict type checking, four unit tests, the production build, all thirteen browser tests and the whitespace check passed. The final SwiftShader sample recorded 1.666 seconds from revealing to ready and zero draws during the settled 500 ms interval. Independent review passed on the final changes.

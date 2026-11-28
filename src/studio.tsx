@@ -1,3 +1,4 @@
+import gsap from 'gsap'
 import { createRoot, extend } from '@react-three/fiber'
 import { Environment } from '@react-three/drei/core/Environment'
 import {
@@ -33,9 +34,9 @@ function releaseModel(model: Object3D) {
 }
 
 // Project the eight corners onto the camera axes, leaving a margin on every edge.
-function frame(camera: PerspectiveCamera, box: Box3, aspect: number) {
+function frame(camera: PerspectiveCamera, box: Box3, aspect: number, progress: number) {
   const center = box.getCenter(new Vector3())
-  const direction = new Vector3(0.7, 0.32, 1).normalize()
+  const direction = new Vector3(0.7 + 0.32 * (1 - progress), 0.32 - 0.06 * (1 - progress), 1).normalize()
   const right = new Vector3().crossVectors(camera.up, direction).normalize()
   const up = new Vector3().crossVectors(direction, right)
   const slope = Math.tan(camera.fov * Math.PI / 360)
@@ -50,12 +51,12 @@ function frame(camera: PerspectiveCamera, box: Box3, aspect: number) {
     }
   }
   camera.aspect = aspect
-  camera.position.copy(center).addScaledVector(direction, distance)
+  camera.position.copy(center).addScaledVector(direction, distance * (1 + 0.08 * (1 - progress)))
   camera.lookAt(center)
   camera.updateProjectionMatrix()
 }
 
-export async function mountStudio(host: HTMLElement, lifetime: AbortSignal, report: (state: StageState) => void) {
+export async function mountStudio(host: HTMLElement, lifetime: AbortSignal, report: (state: StageState) => void, skip?: AbortSignal) {
   const canvas = document.createElement('canvas')
   canvas.setAttribute('role', 'img')
   canvas.setAttribute('aria-label', 'Three-quarter studio view of the vehicle')
@@ -72,10 +73,14 @@ export async function mountStudio(host: HTMLElement, lifetime: AbortSignal, repo
   let environment: WebGLRenderTarget | undefined
   let root: ReturnType<typeof createRoot> | undefined
   let observer: ResizeObserver | undefined
+  let reveal: gsap.core.Tween | undefined
+  let revealFrame = 0
   const stop = () => {
     if (session.signal.aborted) return
     session.abort()
     lifetime.removeEventListener('abort', stop)
+    cancelAnimationFrame(revealFrame)
+    reveal?.kill()
     observer?.disconnect()
     root?.unmount()
     environment?.dispose()
@@ -118,13 +123,16 @@ export async function mountStudio(host: HTMLElement, lifetime: AbortSignal, repo
       room.dispose()
     }
     const size = host.getBoundingClientRect()
-    frame(camera, bounds, size.width / size.height)
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const motion = { progress: preference.matches || skip?.aborted || document.hidden ? 1 : 0 }
+    let aspect = size.width / size.height
+    frame(camera, bounds, aspect, motion.progress)
     root = createRoot(canvas)
     await root.configure({ gl, scene, camera, size, shadows: true, frameloop: 'demand', dpr: [1, 1.5] })
     if (session.signal.aborted) return
     let presented = false
     const store = root.render(<>
-      <Environment map={environment.texture} environmentIntensity={0.95} />
+      <Environment map={environment.texture} environmentIntensity={0.42 + 0.53 * motion.progress} />
       <directionalLight position={[3, 6, 2]} intensity={2.4} color="#fff2d9" castShadow
         shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-normalBias={0.015} />
       <primitive object={model} />
@@ -132,18 +140,61 @@ export async function mountStudio(host: HTMLElement, lifetime: AbortSignal, repo
         onAfterRender={() => {
           if (!presented && !session.signal.aborted) {
             presented = true
-            report('ready')
+            if (motion.progress === 1) report('ready')
+            else {
+              reveal = gsap.to(motion, {
+                progress: 1, duration: 1.45, ease: 'power2.inOut', paused: true,
+                onUpdate: () => {
+                  frame(camera, bounds, aspect, motion.progress)
+                  scene.environmentIntensity = 0.42 + 0.53 * motion.progress
+                  store.getState().invalidate()
+                },
+                onComplete: () => {
+                  cancelAnimationFrame(revealFrame)
+                  report('ready')
+                },
+              })
+              // Seek by elapsed time so sparse GPU frames retain the intended shot duration.
+              const shot = reveal
+              let started: number | undefined
+              const advance = () => {
+                if (session.signal.aborted) return
+                const now = performance.now()
+                if (started === undefined) {
+                  // The first GPU submission can block before the browser presents it.
+                  started = now
+                  report('revealing')
+                }
+                shot.time((now - started) / 1000)
+                if (shot.progress() < 1) revealFrame = requestAnimationFrame(advance)
+              }
+              revealFrame = requestAnimationFrame(advance)
+            }
           }
         }}>
         <planeGeometry args={[100, 100]} />
         <meshStandardMaterial color="#333438" roughness={0.84} />
       </mesh>
     </>)
+    const settle = () => {
+      if (reveal ? reveal.progress() === 1 : motion.progress === 1) return
+      reveal?.progress(1)
+      motion.progress = 1
+      frame(camera, bounds, aspect, 1)
+      scene.environmentIntensity = 0.95
+      store.getState().invalidate()
+    }
+    const options = { signal: session.signal }
+    preference.addEventListener('change', settle, options)
+    skip?.addEventListener('abort', settle, options)
+    document.addEventListener('visibilitychange', settle, options)
+    if (skip?.aborted || preference.matches || document.hidden) settle()
     observer = new ResizeObserver(() => {
       const { width, height } = host.getBoundingClientRect()
       if (width && height) {
         store.getState().setSize(width, height)
-        frame(camera, bounds, width / height)
+        aspect = width / height
+        frame(camera, bounds, aspect, motion.progress)
         store.getState().invalidate()
       }
     })
