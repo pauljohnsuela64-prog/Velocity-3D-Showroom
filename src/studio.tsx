@@ -74,10 +74,12 @@ export async function mountStudio(host: HTMLElement, lifetime: AbortSignal, repo
   let root: ReturnType<typeof createRoot> | undefined
   let observer: ResizeObserver | undefined
   let reveal: gsap.core.Tween | undefined
+  let revealFrame = 0
   const stop = () => {
     if (session.signal.aborted) return
     session.abort()
     lifetime.removeEventListener('abort', stop)
+    cancelAnimationFrame(revealFrame)
     reveal?.kill()
     observer?.disconnect()
     root?.unmount()
@@ -140,16 +142,33 @@ export async function mountStudio(host: HTMLElement, lifetime: AbortSignal, repo
             presented = true
             if (motion.progress === 1) report('ready')
             else {
-              report('revealing')
               reveal = gsap.to(motion, {
-                progress: 1, duration: 1.45, ease: 'power2.inOut',
+                progress: 1, duration: 1.45, ease: 'power2.inOut', paused: true,
                 onUpdate: () => {
                   frame(camera, bounds, aspect, motion.progress)
                   scene.environmentIntensity = 0.42 + 0.53 * motion.progress
                   store.getState().invalidate()
                 },
-                onComplete: () => report('ready'),
+                onComplete: () => {
+                  cancelAnimationFrame(revealFrame)
+                  report('ready')
+                },
               })
+              // Seek by elapsed time so sparse GPU frames retain the intended shot duration.
+              const shot = reveal
+              let started: number | undefined
+              const advance = () => {
+                if (session.signal.aborted) return
+                const now = performance.now()
+                if (started === undefined) {
+                  // The first GPU submission can block before the browser presents it.
+                  started = now
+                  report('revealing')
+                }
+                shot.time((now - started) / 1000)
+                if (shot.progress() < 1) revealFrame = requestAnimationFrame(advance)
+              }
+              revealFrame = requestAnimationFrame(advance)
             }
           }
         }}>
@@ -158,7 +177,7 @@ export async function mountStudio(host: HTMLElement, lifetime: AbortSignal, repo
       </mesh>
     </>)
     const settle = () => {
-      if (motion.progress === 1) return
+      if (reveal ? reveal.progress() === 1 : motion.progress === 1) return
       reveal?.progress(1)
       motion.progress = 1
       frame(camera, bounds, aspect, 1)

@@ -146,8 +146,16 @@ test('navigating during a slow load skips the pending reveal', async ({ page }) 
 
 for (const interruption of ['skip', 'reduce'] as const) {
   test(`settles an active reveal on ${interruption} and preserves focus`, async ({ page }) => {
+    // Hold the shot between focus and input so natural completion cannot activate credits.
+    const start = new Date('2026-01-01T00:00:00Z')
+    await page.clock.install({ time: start })
+    await page.clock.pauseAt(new Date(start.getTime() + 1000))
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     const button = page.getByRole('button', { name: 'Skip reveal' })
+    await expect.poll(async () => {
+      await page.clock.runFor(32)
+      return button.isVisible()
+    }, { timeout: 30_000 }).toBe(true)
     await button.focus({ timeout: 30_000 })
     if (interruption === 'skip') await page.keyboard.press('Enter')
     else await page.emulateMedia({ reducedMotion: 'reduce' })
@@ -155,3 +163,21 @@ for (const interruption of ['skip', 'reduce'] as const) {
     await expect(page.getByRole('link', { name: 'Vehicle credits' })).toBeFocused()
   })
 }
+
+test('finishes the vehicle reveal when software-rendered frames arrive slowly', async ({ page }) => {
+  await page.addInitScript(() => {
+    const nativeFrame = window.requestAnimationFrame.bind(window)
+    window.requestAnimationFrame = callback => nativeFrame(timestamp => {
+      if (document.querySelector('.studio-stage[data-state="revealing"]')) {
+        setTimeout(() => callback(performance.now()), 750)
+      } else {
+        callback(timestamp)
+      }
+    })
+  })
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  const stage = page.locator('.studio-stage')
+  await stage.scrollIntoViewIfNeeded()
+  await expect(stage).toHaveAttribute('data-state', 'revealing', { timeout: 30_000 })
+  await expect(stage).toHaveAttribute('data-state', 'ready', { timeout: 6000 })
+})
